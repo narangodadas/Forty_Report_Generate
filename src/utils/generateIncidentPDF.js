@@ -11,19 +11,19 @@ import { SITE_INFORMATION } from "../data/siteInformation.js";
 // ── Geometry ──────────────────────────────────────────────────────────────────
 const PW = 210, PH = 297, ML = 16, MR = 16, CW = PW - ML - MR;
 
-// ── Green colour palette ──────────────────────────────────────────────────────
-const INK        = [10,  30,  15];    // near-black with green tint
-const INK_MID    = [55,  90,  65];    // mid green-grey for labels
-const INK_LIGHT  = [130, 165, 140];   // light green-grey for footer text
+// ── Blue colour palette ──────────────────────────────────────────────────────
+const INK        = [10,  20,  35];    // near-black with blue tint
+const INK_MID    = [55,  75,  105];   // mid blue-grey for labels
+const INK_LIGHT  = [130, 150, 180];   // light blue-grey for footer text
 
-const G_DARK     = [5,   171, 72];    // #05AB48 — header, footer bar, table heads
-const G_ACCENT   = [0,   145, 54];    // #009136 — section bars, bullets, labels, date accents
-const G_BG       = [240, 253, 244];   // #F0FDF4 — very light green background
-const G_MID      = [187, 247, 208];   // #BBF7D0 — light green for category text in header
+const G_DARK     = [3,   19,  163];   // #0313A3 — header, footer bar, table heads
+const G_ACCENT   = [2,   18,  194];   // #0212C2 — section bars, bullets, labels, date accents
+const G_BG       = [239, 246, 255];   // #EFF6FF — very light blue background
+const G_MID      = [191, 219, 254];   // #BFDBFE — light blue tint for category text in header
 
 const WHITE      = [255, 255, 255];
-const BORDER     = [220, 237, 225];   // green-tinted border
-const ROW_ALT    = [245, 252, 247];   // very light green alternate row
+const BORDER     = [219, 234, 254];   // blue-tinted border
+const ROW_ALT    = [245, 249, 255];   // very light blue alternate row
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const setFill = (d, c) => d.setFillColor(...c);
