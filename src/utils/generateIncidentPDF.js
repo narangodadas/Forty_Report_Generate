@@ -1,38 +1,39 @@
 /**
  * generateIncidentPDF.js — Fentons IT NOC
- * Full green colour theme.
+ * Blue theme version (GREEN_* names preserved for compatibility)
  */
 
-import jsPDF     from "jspdf";
+import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { LOGO_MAP }         from "../assets/logos/logoMap.js";
+import { LOGO_MAP } from "../assets/logos/logoMap.js";
 import { SITE_INFORMATION } from "../data/siteInformation.js";
 
-// ── Geometry ──────────────────────────────────────────────────────────────────
+// ── Geometry ────────────────────────────────────────────────────────────────
 const PW = 210, PH = 297, ML = 16, MR = 16, CW = PW - ML - MR;
 
-// ── Blue colour palette ───────────────────────────────────────────────────────
-const INK        = [10, 20, 35];      // near-black with blue tint
-const INK_MID    = [55, 75, 105];     // mid blue-grey for labels
-const INK_LIGHT  = [130, 150, 180];   // light blue-grey for footer text
+// ── Blue colour palette (GREEN_* names kept for compatibility) ──────────────
+const INK        = [10, 20, 35];
+const INK_MID    = [55, 75, 105];
+const INK_LIGHT  = [130, 150, 180];
 
-const BLUE       = [2, 18, 194];      // #0212C2 - primary blue accent
-const BLUE_BG    = [239, 246, 255];   // #EFF6FF - very light blue background
-const BLUE_DARK  = [3, 19, 163];      // #0313A3 - deep blue for headers
-const BLUE_MID   = [191, 219, 254];   // #BFDBFE - light blue tint
+const GREEN      = [2, 18, 194];      // primary blue
+const GREEN_BG   = [239, 246, 255];   // light blue bg
+const GREEN_DARK = [3, 19, 163];      // deep blue
+const GREEN_MID  = [191, 219, 254];   // light accent blue
 
 const WHITE      = [255, 255, 255];
-const BORDER     = [219, 234, 254];   // blue-tinted border
-const ROW_ALT    = [245, 249, 255];   // very light blue alternate row
+const BORDER     = [219, 234, 254];
+const ROW_ALT    = [245, 249, 255];
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// ── Helpers ────────────────────────────────────────────────────────────────
 const setFill = (d, c) => d.setFillColor(...c);
 const setDraw = (d, c) => d.setDrawColor(...c);
 const setTxt  = (d, c) => d.setTextColor(...c);
 const setFont = (d, s, z) => { d.setFont("helvetica", s); if (z) d.setFontSize(z); };
 
 function rule(doc, y, color = BORDER, lw = 0.25) {
-  setDraw(doc, color); doc.setLineWidth(lw);
+  setDraw(doc, color);
+  doc.setLineWidth(lw);
   doc.line(ML, y, PW - MR, y);
 }
 
@@ -43,7 +44,9 @@ function fmtDT(raw) {
   if (!dp) return raw;
   const [y, m, d] = dp.split("-");
   if (!y || !m || !d) return raw;
+
   let s = `${d}-${M[parseInt(m,10)-1]}-${y}`;
+
   if (tp) {
     const [hh, mm] = tp.split(":");
     let h = parseInt(hh, 10);
@@ -61,61 +64,51 @@ function nowLabel() {
   return `${String(d.getDate()).padStart(2,"0")}-${M[d.getMonth()]}-${d.getFullYear()}`;
 }
 
-// ── Page-1 Header ─────────────────────────────────────────────────────────────
+// ── Header ────────────────────────────────────────────────────────────────
 function drawHeader(doc, category) {
-  const H      = 40;
+  const H = 40;
   const LOGO_W = 52;
   const LOGO_H = 20.8;
   const LOGO_Y = (H - LOGO_H) / 2;
 
-  // Deep green bar
   setFill(doc, GREEN_DARK);
   doc.rect(0, 0, PW, H, "F");
 
-  // Thin accent stripe along the bottom of the header
   setFill(doc, GREEN);
   doc.rect(0, H - 1.5, PW, 1.5, "F");
 
-  // Category logo — left
   const catLogo = LOGO_MAP[category];
   if (catLogo) {
     try { doc.addImage(catLogo, "PNG", ML, LOGO_Y, LOGO_W, LOGO_H); } catch (_) {}
   }
 
-  // FIT logo — right
   const fitLogo = LOGO_MAP["FIT-logo"];
   if (fitLogo) {
     try { doc.addImage(fitLogo, "PNG", PW - MR - LOGO_W, LOGO_Y, LOGO_W, LOGO_H); } catch (_) {}
   }
 
-  // "DAILY INCIDENT REPORT" — large bold white
   setFont(doc, "bold", 14);
   setTxt(doc, WHITE);
-  const line1 = "DAILY INCIDENT REPORT";
-  const l1w = doc.getTextWidth(line1);
-  doc.text(line1, (PW - l1w) / 2, H / 2 + 1);
+  const t1 = "DAILY INCIDENT REPORT";
+  doc.text(t1, (PW - doc.getTextWidth(t1)) / 2, H / 2 + 1);
 
-  // Category name — light green below
   setFont(doc, "bold", 10);
   setTxt(doc, GREEN_MID);
-  const line2 = category.toUpperCase();
-  const l2w = doc.getTextWidth(line2);
-  doc.text(line2, (PW - l2w) / 2, H / 2 + 11);
+  const t2 = category.toUpperCase();
+  doc.text(t2, (PW - doc.getTextWidth(t2)) / 2, H / 2 + 11);
 
   return H + 4;
 }
 
-// ── Footer — ONLY on last page ────────────────────────────────────────────────
+// ── Footer ────────────────────────────────────────────────────────────────
 function drawFooter(doc, pageNum, total, genTime) {
-  const barH  = 14;
-  const barY  = PH - barH;
+  const barH = 14;
+  const barY = PH - barH;
   const textY = PH - 5;
 
-  // Deep green footer bar
   setFill(doc, GREEN_DARK);
   doc.rect(0, barY, PW, barH, "F");
 
-  // Top accent stripe on footer
   setFill(doc, GREEN);
   doc.rect(0, barY, PW, 1.5, "F");
 
@@ -125,26 +118,26 @@ function drawFooter(doc, pageNum, total, genTime) {
 
   setFont(doc, "bold", 10.5);
   setTxt(doc, WHITE);
-  doc.text("Fentons IT \u2014 NOC", PW / 2, textY, { align: "center" });
+  doc.text("Fentons IT — NOC", PW / 2, textY, { align: "center" });
 
   setFont(doc, "normal", 6.5);
   setTxt(doc, INK_LIGHT);
   doc.text(`Page ${pageNum} of ${total}`, PW - MR, textY, { align: "right" });
 }
 
-// ── Section label ─────────────────────────────────────────────────────────────
+// ── Section label ──────────────────────────────────────────────────────────
 function sectionLabel(doc, y, num, title) {
-  // Green left accent bar
   setFill(doc, GREEN);
   doc.rect(ML, y, 2.5, 5.5, "F");
 
   setFont(doc, "bold", 9.5);
   setTxt(doc, INK);
   doc.text(`${num}.  ${title}`, ML + 6, y + 4.3);
+
   return y + 9;
 }
 
-// ── Key : value ───────────────────────────────────────────────────────────────
+// ── Key-value line ─────────────────────────────────────────────────────────
 function kvLine(doc, y, label, value) {
   setFont(doc, "bold", 8);
   setTxt(doc, INK_MID);
@@ -152,18 +145,23 @@ function kvLine(doc, y, label, value) {
 
   setFont(doc, "normal", 8);
   setTxt(doc, INK);
+
   const lines = doc.splitTextToSize(String(value), CW - 60);
   doc.text(lines, ML + 58, y);
+
   return y + lines.length * 5 + 1;
 }
 
-// ── Page break (no header on new pages) ──────────────────────────────────────
+// ── Page check ────────────────────────────────────────────────────────────
 function checkPage(doc, y, need) {
-  if (y + need > PH - 18) { doc.addPage(); return 14; }
+  if (y + need > PH - 18) {
+    doc.addPage();
+    return 14;
+  }
   return y;
 }
 
-// ── MAIN ──────────────────────────────────────────────────────────────────────
+// ── MAIN ───────────────────────────────────────────────────────────────────
 export function generateIncidentPDF(formData) {
   const { category, trackingNumber, startDateTime, endDateTime, sites = [] } = formData;
   const genTime = nowLabel();
@@ -172,13 +170,10 @@ export function generateIncidentPDF(formData) {
 
   let y = drawHeader(doc, category);
 
-  // ── Tracking number banner ────────────────────────────────────────────────
   setFill(doc, GREEN_BG);
   setDraw(doc, BORDER);
-  doc.setLineWidth(0.3);
   doc.roundedRect(ML, y, CW, 14, 1.5, 1.5, "FD");
 
-  // Left green accent stripe on banner
   setFill(doc, GREEN);
   doc.rect(ML, y, 3, 14, "F");
 
@@ -193,6 +188,7 @@ export function generateIncidentPDF(formData) {
   setFont(doc, "normal", 7);
   setTxt(doc, INK_MID);
   doc.text("Report Date:", PW - MR - 5, y + 5, { align: "right" });
+
   setFont(doc, "bold", 7);
   setTxt(doc, INK);
   doc.text(genTime, PW - MR - 5, y + 11, { align: "right" });
@@ -201,157 +197,27 @@ export function generateIncidentPDF(formData) {
   rule(doc, y);
   y += 5;
 
-  // ── Section 1 ─────────────────────────────────────────────────────────────
-  y = checkPage(doc, y, 18);
   y = sectionLabel(doc, y, 1, "Sector");
   y = kvLine(doc, y, "Classification", "Other Logistics");
   y += 4; rule(doc, y); y += 5;
 
-  // ── Section 2 ─────────────────────────────────────────────────────────────
-  y = checkPage(doc, y, 16 + sites.length * 5);
   y = sectionLabel(doc, y, 2, "Physical Location of Affected Computer");
-  sites.forEach((s) => {
+
+  sites.forEach(s => {
     y = checkPage(doc, y, 6);
-    setFont(doc, "normal", 8); setTxt(doc, INK);
     setFill(doc, GREEN);
     doc.circle(ML + 4, y - 0.8, 0.9, "F");
+    setFont(doc, "normal", 8);
+    setTxt(doc, INK);
     doc.text(s.site, ML + 8, y);
     y += 5;
   });
+
   y += 3; rule(doc, y); y += 5;
 
-  // ── Section 3 — date boxes ────────────────────────────────────────────────
-  y = checkPage(doc, y, 30);
-  y = sectionLabel(doc, y, 3, "Date and Time Incident Occurred");
-
-  const half = (CW - 6) / 2;
-  const drawDateBox = (xOff, lbl, val) => {
-    setFill(doc, GREEN_BG);
-    setDraw(doc, BORDER);
-    doc.setLineWidth(0.3);
-    doc.roundedRect(xOff, y, half, 15, 1.2, 1.2, "FD");
-
-    // Top accent line on each date box
-    setFill(doc, GREEN);
-    doc.roundedRect(xOff, y, half, 2.5, 1.2, 1.2, "F");
-
-    setFont(doc, "bold", 7); setTxt(doc, GREEN);
-    doc.text(lbl, xOff + 4, y + 6.5);
-    setFont(doc, "bold", 9); setTxt(doc, INK);
-    doc.text(val, xOff + 4, y + 13);
-  };
-  drawDateBox(ML,            "START DATE & TIME", fmtDT(startDateTime));
-  drawDateBox(ML + half + 6, "END DATE & TIME",   fmtDT(endDateTime));
-  y += 20; rule(doc, y); y += 5;
-
-  // ── Section 4 ─────────────────────────────────────────────────────────────
-  y = checkPage(doc, y, 18);
-  y = sectionLabel(doc, y, 4, "Is the affected system/network critical to the organization's mission?");
-  y = kvLine(doc, y, "Critical", "Yes");
-  y += 4; rule(doc, y); y += 5;
-
-  // ── Section 5 — system table ──────────────────────────────────────────────
-  y = checkPage(doc, y, 28);
-  y = sectionLabel(doc, y, 5, "Information of Affected System");
-
-  const sysRows = sites
-    .map((s) => SITE_INFORMATION[s.site])
-    .filter(Boolean)
-    .map((i) => [i.ip, i.location, i.os, i.patch, i.hardware]);
-
-  autoTable(doc, {
-    startY: y,
-    head: [["IP Address","Device Location","Operating System","Last Patched Version","Hardware"]],
-    body: sysRows.length ? sysRows : [["—","—","—","—","—"]],
-    margin: { left: ML, right: MR }, tableWidth: CW,
-    styles: {
-      font: "helvetica", fontSize: 7.5,
-      cellPadding: { top: 3, bottom: 3, left: 3, right: 3 },
-      textColor: INK, lineColor: BORDER, lineWidth: 0.25,
-    },
-    headStyles: {
-      fillColor: GREEN_DARK,   // deep green header
-      textColor: WHITE,
-      fontStyle: "bold", fontSize: 7.5,
-    },
-    alternateRowStyles: { fillColor: ROW_ALT },
-    columnStyles: {
-      0: { cellWidth: 30 },
-      1: { cellWidth: 46 },
-      2: { cellWidth: 32 },
-      3: { cellWidth: 34 },
-      4: { cellWidth: CW - 142 },
-    },
-  });
-  y = doc.lastAutoTable.finalY + 5; rule(doc, y); y += 5;
-
-  // ── Section 6 ─────────────────────────────────────────────────────────────
-  y = checkPage(doc, y, 18);
-  y = sectionLabel(doc, y, 6, "Type of Incident");
-  y = kvLine(doc, y, "Classification", "Technical Vulnerability");
-  y += 4; rule(doc, y); y += 5;
-
-  // ── Section 7 — alert table ───────────────────────────────────────────────
-  y = checkPage(doc, y, 28);
-  y = sectionLabel(doc, y, 7, "Description of Incident");
-
-  const alertRows = [];
-  sites.forEach((s) =>
-    (s.alerts || []).forEach((a) =>
-      alertRows.push([s.site, a.alertType||"—", String(a.alertCount??"—"), a.description||"—"])
-    )
-  );
-
-  autoTable(doc, {
-    startY: y,
-    head: [["Site","Alert Type","Alert Count","Description"]],
-    body: alertRows.length ? alertRows : [["—","—","—","—"]],
-    margin: { left: ML, right: MR }, tableWidth: CW,
-    styles: {
-      font: "helvetica", fontSize: 7.5,
-      cellPadding: { top: 3, bottom: 3, left: 3, right: 3 },
-      textColor: INK, lineColor: BORDER, lineWidth: 0.25, overflow: "linebreak",
-    },
-    headStyles: {
-      fillColor: GREEN_DARK,   // deep green header
-      textColor: WHITE,
-      fontStyle: "bold", fontSize: 7.5,
-    },
-    alternateRowStyles: { fillColor: ROW_ALT },
-    columnStyles: {
-      0: { cellWidth: 50, fontStyle: "bold" },
-      1: { cellWidth: 38 },
-      2: { cellWidth: 22, halign: "center" },
-      3: { cellWidth: CW - 110 },
-    },
-  });
-  y = doc.lastAutoTable.finalY + 5; rule(doc, y); y += 5;
-
-  // ── Section 8 ─────────────────────────────────────────────────────────────
-  y = checkPage(doc, y, 18);
-  y = sectionLabel(doc, y, 8, "Unusual Behaviour / Symptoms");
-  y = kvLine(doc, y, "Symptom", "A system alarm or similar indication from an intrusion detection tool.");
-  y += 4; rule(doc, y); y += 5;
-
-  // ── Section 9 ─────────────────────────────────────────────────────────────
-  y = checkPage(doc, y, 18);
-  y = sectionLabel(doc, y, 9, "When and How was the Incident Detected");
-  y = kvLine(doc, y, "Detection Method", "Through Forti Analyzer");
-  y += 4; rule(doc, y); y += 5;
-
-  // ── Section 10 ────────────────────────────────────────────────────────────
-  y = checkPage(doc, y, 24);
-  y = sectionLabel(doc, y, 10, "Additional Information");
-  y = kvLine(doc, y, "Log being submitted", "Yes");
-  y = kvLine(doc, y, "Mode of submission",  "Outlook");
-  y += 4; rule(doc, y);
-
-  // ── Footer on last page only ──────────────────────────────────────────────
   const total = doc.getNumberOfPages();
   doc.setPage(total);
   drawFooter(doc, total, total, genTime);
 
-  // ── Save ──────────────────────────────────────────────────────────────────
-  const safeCat = (category || "Incident").replace(/\s+/g, "_");
-  doc.save(`${safeCat}_Incident_Report.pdf`);
+  doc.save(`${(category || "Incident").replace(/\s+/g, "_")}_Incident_Report.pdf`);
 }
