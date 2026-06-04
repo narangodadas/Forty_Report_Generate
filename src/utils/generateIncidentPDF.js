@@ -11,19 +11,19 @@ import { SITE_INFORMATION } from "../data/siteInformation.js";
 // ── Geometry ──────────────────────────────────────────────────────────────────
 const PW = 210, PH = 297, ML = 16, MR = 16, CW = PW - ML - MR;
 
-// ── Green colour palette (replaces every blue) ────────────────────────────────
-const INK        = [10,  30,  15];   // near-black with green tint
-const INK_MID    = [55,  90,  65];   // mid green-grey for labels
-const INK_LIGHT  = [130, 165, 140];  // light green-grey for footer text
+// ── Blue colour palette ───────────────────────────────────────────────────────
+const INK        = [10, 20, 35];      // near-black with blue tint
+const INK_MID    = [55, 75, 105];     // mid blue-grey for labels
+const INK_LIGHT  = [130, 150, 180];   // light blue-grey for footer text
 
-const GREEN      = [0,  145, 54];   // #009136   // #166534  forest green — accent / section bars
-const GREEN_BG   = [240, 253, 244];  // #F0FDF4  very light green — banner & date boxes bg
-const GREEN_DARK = [19, 143, 3];  // #05AB48   // #14532D  deep green — header / footer bar / table heads
-const GREEN_MID  = [187, 247, 208];  // #BBF7D0  light green tint for category text in header
+const BLUE       = [2, 18, 194];      // #0212C2 - primary blue accent
+const BLUE_BG    = [239, 246, 255];   // #EFF6FF - very light blue background
+const BLUE_DARK  = [3, 19, 163];      // #0313A3 - deep blue for headers
+const BLUE_MID   = [191, 219, 254];   // #BFDBFE - light blue tint
 
 const WHITE      = [255, 255, 255];
-const BORDER     = [220, 237, 225];  // green-tinted border
-const ROW_ALT    = [245, 252, 247];  // very light green alt row
+const BORDER     = [219, 234, 254];   // blue-tinted border
+const ROW_ALT    = [245, 249, 255];   // very light blue alternate row
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const setFill = (d, c) => d.setFillColor(...c);
