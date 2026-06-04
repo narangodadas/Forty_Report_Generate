@@ -54,43 +54,53 @@ function fmtDT(raw) {
 }
 
 function nowLabel() {
-  return fmtDT(new Date().toISOString().replace("T"," ").slice(0,16));
+  // Return date only: DD-Mon-YYYY
+  const d = new Date();
+  const M = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return `${String(d.getDate()).padStart(2,"0")}-${M[d.getMonth()]}-${d.getFullYear()}`;
 }
 
 // ── Page-1 Header ─────────────────────────────────────────────────────────────
 function drawHeader(doc, category) {
-  const H      = 38;     // header bar height mm
-  const LOGO_W = 52;     // logo badge width mm
-  const LOGO_H = 28;     // logo badge height mm
-  const LOGO_Y = (H - LOGO_H) / 2;  // vertically centred
+  const H      = 42;   // header bar height mm — taller for bigger logos + 2-line text
+  const LOGO_H = 24;   // badge height mm — good for all logos
+  const LOGO_Y = (H - LOGO_H) / 2;
 
-  // Dark navy bar
+  // Category logo badge: max 60mm wide, preserves aspect ratio via jsPDF
+  const CAT_W = 60;
+  // FIT badge: square-ish logo, fixed 28mm
+  const FIT_W = 28;
+
   setFill(doc, HEAD_BG);
   doc.rect(0, 0, PW, H, "F");
 
-  // Category logo — left, white badge
+  // Category logo — left
   const catLogo = LOGO_MAP[category];
   if (catLogo) {
-    try { doc.addImage(catLogo, "PNG", ML, LOGO_Y, LOGO_W, LOGO_H); } catch (_) {}
+    try { doc.addImage(catLogo, "PNG", ML, LOGO_Y, CAT_W, LOGO_H); } catch (_) {}
   }
 
-  // FIT logo — right, white badge
+  // FIT logo — right
   const fitLogo = LOGO_MAP["FIT-logo"];
   if (fitLogo) {
-    try { doc.addImage(fitLogo, "PNG", PW - MR - LOGO_W, LOGO_Y, LOGO_W, LOGO_H); } catch (_) {}
+    try { doc.addImage(fitLogo, "PNG", PW - MR - FIT_W, LOGO_Y, FIT_W, LOGO_H); } catch (_) {}
   }
 
-  // Category name — perfectly centred
-  setFont(doc, "bold", 11);
+  // Centre text block — vertically centred in header
+  // Line 1: "DAILY INCIDENT REPORT" — large bold white (simulate Calibri)
+  const textCentreX = (ML + CAT_W + (PW - MR - FIT_W)) / 2;
+  const line1 = "DAILY INCIDENT REPORT";
+  setFont(doc, "bold", 14);
   setTxt(doc, WHITE);
-  doc.text(category.toUpperCase(), PW / 2, H / 2 - 1, { align: "center" });
+  const l1w = doc.getTextWidth(line1);
+  doc.text(line1, (PW - l1w) / 2, H / 2 + 1);
 
-  // "INCIDENT REPORT" — perfectly centred below
-  setFont(doc, "bold", 7.5);
-  setTxt(doc, [170, 200, 240]);
-  const label = "INCIDENT REPORT";
-  const tw = doc.getTextWidth(label);
-  doc.text(label, (PW - tw) / 2, H / 2 + 7);
+  // Line 2: Category name — smaller, light blue, below
+  const line2 = category.toUpperCase();
+  setFont(doc, "normal", 8);
+  setTxt(doc, [180, 210, 248]);
+  const l2w = doc.getTextWidth(line2);
+  doc.text(line2, (PW - l2w) / 2, H / 2 + 10);
 
   return H + 4;
 }
@@ -179,7 +189,7 @@ export function generateIncidentPDF(formData) {
 
   setFont(doc, "normal", 7);
   setTxt(doc, INK_MID);
-  doc.text("Generated On:", PW - MR - 5, y + 5, { align: "right" });
+  doc.text("Report Date:", PW - MR - 5, y + 5, { align: "right" });
   setFont(doc, "bold", 7);
   setTxt(doc, INK);
   doc.text(genTime, PW - MR - 5, y + 11, { align: "right" });
