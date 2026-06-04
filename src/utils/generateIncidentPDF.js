@@ -62,45 +62,41 @@ function nowLabel() {
 
 // ── Page-1 Header ─────────────────────────────────────────────────────────────
 function drawHeader(doc, category) {
-  const H      = 42;   // header bar height mm — taller for bigger logos + 2-line text
-  const LOGO_H = 24;   // badge height mm — good for all logos
-  const LOGO_Y = (H - LOGO_H) / 2;
-
-  // Category logo badge: max 60mm wide, preserves aspect ratio via jsPDF
-  const CAT_W = 60;
-  // FIT badge: square-ish logo, fixed 28mm
-  const FIT_W = 28;
+  // All logo badges are EXACTLY 500x200 px — render both at identical mm size
+  // Both sides: 52mm wide x 20.8mm tall (500:200 = 5:2 ratio)
+  const H      = 40;     // header bar height mm
+  const LOGO_W = 52;     // mm — identical for BOTH logos (500px / ~9.6px per mm)
+  const LOGO_H = 20.8;   // mm — identical for BOTH logos (200px / ~9.6px per mm)
+  const LOGO_Y = (H - LOGO_H) / 2;   // vertically centred in bar
 
   setFill(doc, HEAD_BG);
   doc.rect(0, 0, PW, H, "F");
 
-  // Category logo — left
+  // Left: category logo — same size as FIT logo
   const catLogo = LOGO_MAP[category];
   if (catLogo) {
-    try { doc.addImage(catLogo, "PNG", ML, LOGO_Y, CAT_W, LOGO_H); } catch (_) {}
+    try { doc.addImage(catLogo, "PNG", ML, LOGO_Y, LOGO_W, LOGO_H); } catch (_) {}
   }
 
-  // FIT logo — right
+  // Right: FIT logo — same size as category logo
   const fitLogo = LOGO_MAP["FIT-logo"];
   if (fitLogo) {
-    try { doc.addImage(fitLogo, "PNG", PW - MR - FIT_W, LOGO_Y, FIT_W, LOGO_H); } catch (_) {}
+    try { doc.addImage(fitLogo, "PNG", PW - MR - LOGO_W, LOGO_Y, LOGO_W, LOGO_H); } catch (_) {}
   }
 
-  // Centre text block — vertically centred in header
-  // Line 1: "DAILY INCIDENT REPORT" — large bold white (simulate Calibri)
-  const textCentreX = (ML + CAT_W + (PW - MR - FIT_W)) / 2;
-  const line1 = "DAILY INCIDENT REPORT";
+  // "DAILY INCIDENT REPORT" — large bold white, perfectly centred
   setFont(doc, "bold", 14);
   setTxt(doc, WHITE);
+  const line1 = "DAILY INCIDENT REPORT";
   const l1w = doc.getTextWidth(line1);
   doc.text(line1, (PW - l1w) / 2, H / 2 + 1);
 
-  // Line 2: Category name — smaller, light blue, below
-  const line2 = category.toUpperCase();
-  setFont(doc, "normal", 8);
+  // Category name — below title, larger font, light blue
+  setFont(doc, "bold", 10);
   setTxt(doc, [180, 210, 248]);
+  const line2 = category.toUpperCase();
   const l2w = doc.getTextWidth(line2);
-  doc.text(line2, (PW - l2w) / 2, H / 2 + 10);
+  doc.text(line2, (PW - l2w) / 2, H / 2 + 11);
 
   return H + 4;
 }
