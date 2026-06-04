@@ -71,7 +71,7 @@ function drawHeader(doc, category) {
   }
 
   // FIT-01logo — right
-  const fitLogo = LOGO_MAP["FIT-01logo"];
+  const fitLogo = LOGO_MAP["FIT-logo"];
   if (fitLogo) {
     try { doc.addImage(fitLogo, "PNG", PW - MR - 32, 5, 32, 16); } catch (_) {}
   }
