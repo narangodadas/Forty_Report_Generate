@@ -135,7 +135,7 @@ function sectionLabel(doc, y, num, title) {
   setFill(doc, G_ACCENT);
   doc.rect(ML, y, 2.5, 5.5, "F");
 
-  setFont(doc, "bold", 9.5);
+  setFont(doc, "bold", 11);
   setTxt(doc, INK);
   doc.text(`${num}.  ${title}`, ML + 6, y + 4.3);
   return y + 9;
@@ -143,11 +143,11 @@ function sectionLabel(doc, y, num, title) {
 
 // ── Key : value ───────────────────────────────────────────────────────────────
 function kvLine(doc, y, label, value) {
-  setFont(doc, "bold", 8);
+  setFont(doc, "bold", 9.5);
   setTxt(doc, INK_MID);
   doc.text(label, ML + 2, y);
 
-  setFont(doc, "normal", 8);
+  setFont(doc, "normal", 9.5);
   setTxt(doc, INK);
   const lines = doc.splitTextToSize(String(value), CW - 60);
   doc.text(lines, ML + 58, y);
@@ -179,7 +179,7 @@ export function generateIncidentPDF(formData) {
   setFill(doc, G_ACCENT);
   doc.rect(ML, y, 3, 14, "F");
 
-  setFont(doc, "bold", 7);
+  setFont(doc, "bold", 8);
   setTxt(doc, G_ACCENT);
   doc.text("INCIDENT TRACKING NUMBER", ML + 7, y + 5);
 
@@ -187,10 +187,10 @@ export function generateIncidentPDF(formData) {
   setTxt(doc, INK);
   doc.text(trackingNumber || "N/A", ML + 7, y + 12);
 
-  setFont(doc, "normal", 7);
+  setFont(doc, "normal", 8.5);
   setTxt(doc, INK_MID);
   doc.text("Report Date:", PW - MR - 5, y + 5, { align: "right" });
-  setFont(doc, "bold", 7);
+  setFont(doc, "bold", 8.5);
   setTxt(doc, INK);
   doc.text(genTime, PW - MR - 5, y + 11, { align: "right" });
 
@@ -209,7 +209,7 @@ export function generateIncidentPDF(formData) {
   y = sectionLabel(doc, y, 2, "Physical Location of Affected Computer");
   sites.forEach((s) => {
     y = checkPage(doc, y, 6);
-    setFont(doc, "normal", 8); setTxt(doc, INK);
+    setFont(doc, "normal", 9.5); setTxt(doc, INK);
     setFill(doc, G_ACCENT);
     doc.circle(ML + 4, y - 0.8, 0.9, "F");
     doc.text(s.site, ML + 8, y);
@@ -232,9 +232,9 @@ export function generateIncidentPDF(formData) {
     setFill(doc, G_ACCENT);
     doc.roundedRect(xOff, y, half, 2.5, 1.2, 1.2, "F");
 
-    setFont(doc, "bold", 7); setTxt(doc, G_ACCENT);
+    setFont(doc, "bold", 8.5); setTxt(doc, G_ACCENT);
     doc.text(lbl, xOff + 4, y + 6.5);
-    setFont(doc, "bold", 9); setTxt(doc, INK);
+    setFont(doc, "bold", 11); setTxt(doc, INK);
     doc.text(val, xOff + 4, y + 13);
   };
   drawDateBox(ML,            "START DATE & TIME", fmtDT(startDateTime));
@@ -262,11 +262,11 @@ export function generateIncidentPDF(formData) {
     body: sysRows.length ? sysRows : [["—","—","—","—","—"]],
     margin: { left: ML, right: MR }, tableWidth: CW,
     styles: {
-      font: "helvetica", fontSize: 7.5,
-      cellPadding: { top: 3, bottom: 3, left: 3, right: 3 },
+      font: "helvetica", fontSize: 9,
+      cellPadding: { top: 4, bottom: 4, left: 4, right: 4 },
       textColor: INK, lineColor: BORDER, lineWidth: 0.25,
     },
-    headStyles: { fillColor: G_DARK, textColor: WHITE, fontStyle: "bold", fontSize: 7.5 },
+    headStyles: { fillColor: G_DARK, textColor: WHITE, fontStyle: "bold", fontSize: 9 },
     alternateRowStyles: { fillColor: ROW_ALT },
     columnStyles: {
       0: { cellWidth: 30 }, 1: { cellWidth: 46 },
@@ -299,11 +299,11 @@ export function generateIncidentPDF(formData) {
     body: alertRows.length ? alertRows : [["—","—","—","—"]],
     margin: { left: ML, right: MR }, tableWidth: CW,
     styles: {
-      font: "helvetica", fontSize: 7.5,
-      cellPadding: { top: 3, bottom: 3, left: 3, right: 3 },
+      font: "helvetica", fontSize: 9,
+      cellPadding: { top: 4, bottom: 4, left: 4, right: 4 },
       textColor: INK, lineColor: BORDER, lineWidth: 0.25, overflow: "linebreak",
     },
-    headStyles: { fillColor: G_DARK, textColor: WHITE, fontStyle: "bold", fontSize: 7.5 },
+    headStyles: { fillColor: G_DARK, textColor: WHITE, fontStyle: "bold", fontSize: 9 },
     alternateRowStyles: { fillColor: ROW_ALT },
     columnStyles: {
       0: { cellWidth: 50, fontStyle: "bold" }, 1: { cellWidth: 38 },
