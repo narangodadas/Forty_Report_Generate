@@ -16,9 +16,9 @@ const INK        = [10,  30,  15];   // near-black with green tint
 const INK_MID    = [55,  90,  65];   // mid green-grey for labels
 const INK_LIGHT  = [130, 165, 140];  // light green-grey for footer text
 
-const GREEN      = [22,  101, 52];   // #166534  forest green — accent / section bars
+const GREEN      = [0,  145, 54];   // #009136   // #166534  forest green — accent / section bars
 const GREEN_BG   = [240, 253, 244];  // #F0FDF4  very light green — banner & date boxes bg
-const GREEN_DARK = [20,  83,  45];   // #14532D  deep green — header / footer bar / table heads
+const GREEN_DARK = [5,  171, 72];   // #05AB48   // #14532D  deep green — header / footer bar / table heads
 const GREEN_MID  = [187, 247, 208];  // #BBF7D0  light green tint for category text in header
 
 const WHITE      = [255, 255, 255];
