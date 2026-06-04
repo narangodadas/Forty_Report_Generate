@@ -59,35 +59,38 @@ function nowLabel() {
 
 // ── Page-1 Header ─────────────────────────────────────────────────────────────
 function drawHeader(doc, category) {
-  const H = 28;
+  const H      = 38;     // header bar height mm
+  const LOGO_W = 52;     // logo badge width mm
+  const LOGO_H = 28;     // logo badge height mm
+  const LOGO_Y = (H - LOGO_H) / 2;  // vertically centred
 
+  // Dark navy bar
   setFill(doc, HEAD_BG);
   doc.rect(0, 0, PW, H, "F");
 
-  // Category logo — left
+  // Category logo — left, white badge
   const catLogo = LOGO_MAP[category];
   if (catLogo) {
-    try { doc.addImage(catLogo, "PNG", ML, 5, 32, 16); } catch (_) {}
+    try { doc.addImage(catLogo, "PNG", ML, LOGO_Y, LOGO_W, LOGO_H); } catch (_) {}
   }
 
-  // FIT-01logo — right
+  // FIT logo — right, white badge
   const fitLogo = LOGO_MAP["FIT-logo"];
   if (fitLogo) {
-    try { doc.addImage(fitLogo, "PNG", PW - MR - 32, 5, 32, 16); } catch (_) {}
+    try { doc.addImage(fitLogo, "PNG", PW - MR - LOGO_W, LOGO_Y, LOGO_W, LOGO_H); } catch (_) {}
   }
 
-  // Category name — centred
-  setFont(doc, "bold", 10.5);
+  // Category name — perfectly centred
+  setFont(doc, "bold", 11);
   setTxt(doc, WHITE);
-  doc.text(category.toUpperCase(), PW / 2, 12, { align: "center" });
+  doc.text(category.toUpperCase(), PW / 2, H / 2 - 1, { align: "center" });
 
   // "INCIDENT REPORT" — perfectly centred below
   setFont(doc, "bold", 7.5);
   setTxt(doc, [170, 200, 240]);
-  // measure text to guarantee exact centre
   const label = "INCIDENT REPORT";
   const tw = doc.getTextWidth(label);
-  doc.text(label, (PW - tw) / 2, 21);
+  doc.text(label, (PW - tw) / 2, H / 2 + 7);
 
   return H + 4;
 }
