@@ -1,6 +1,6 @@
 /**
  * generateIncidentPDF.js — Fentons IT NOC
- * Green colour theme — #05AB48 / #009136
+ * Forest green colour theme: #14532D / #166534 / #BBF7D0
  */
 
 import jsPDF     from "jspdf";
@@ -11,19 +11,19 @@ import { SITE_INFORMATION } from "../data/siteInformation.js";
 // ── Geometry ──────────────────────────────────────────────────────────────────
 const PW = 210, PH = 297, ML = 16, MR = 16, CW = PW - ML - MR;
 
-// ── Blue colour palette ──────────────────────────────────────────────────────
-const INK        = [10,  20,  35];    // near-black with blue tint
-const INK_MID    = [55,  75,  105];   // mid blue-grey for labels
-const INK_LIGHT  = [130, 150, 180];   // light blue-grey for footer text
+// ── Forest Green colour palette ───────────────────────────────────────────────
+const INK        = [10,  30,  15];    // near-black with green tint
+const INK_MID    = [55,  90,  65];    // mid green-grey for labels
+const INK_LIGHT  = [130, 165, 140];   // light green-grey for footer text
 
-const G_DARK     = [3,   19,  163];   // #0313A3 — header, footer bar, table heads
-const G_ACCENT   = [2,   18,  194];   // #0212C2 — section bars, bullets, labels, date accents
-const G_BG       = [239, 246, 255];   // #EFF6FF — very light blue background
-const G_MID      = [191, 219, 254];   // #BFDBFE — light blue tint for category text in header
+const G_DARK     = [20,  83,  45];    // #14532D — header bar, footer bar, table heads
+const G_ACCENT   = [22,  101, 52];    // #166534 — section bars, bullets, labels, date accents
+const G_BG       = [240, 253, 244];   // #F0FDF4 — very light green background
+const G_MID      = [187, 247, 208];   // #BBF7D0 — light green for category text in header
 
 const WHITE      = [255, 255, 255];
-const BORDER     = [219, 234, 254];   // blue-tinted border
-const ROW_ALT    = [245, 249, 255];   // very light blue alternate row
+const BORDER     = [220, 237, 225];   // green-tinted border   #DCEDE1
+const ROW_ALT    = [245, 252, 247];   // very light green alt row
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const setFill = (d, c) => d.setFillColor(...c);
@@ -68,10 +68,11 @@ function drawHeader(doc, category) {
   const LOGO_H = 20.8;
   const LOGO_Y = (H - LOGO_H) / 2;
 
+  // #14532D deep forest green bar
   setFill(doc, G_DARK);
   doc.rect(0, 0, PW, H, "F");
 
-  // Bottom accent stripe
+  // #166534 accent stripe at bottom of header
   setFill(doc, G_ACCENT);
   doc.rect(0, H - 1.5, PW, 1.5, "F");
 
@@ -94,7 +95,7 @@ function drawHeader(doc, category) {
   const l1w = doc.getTextWidth(line1);
   doc.text(line1, (PW - l1w) / 2, H / 2 + 1);
 
-  // Category name — light green, below
+  // Category name — #BBF7D0 light green below
   setFont(doc, "bold", 10);
   setTxt(doc, G_MID);
   const line2 = category.toUpperCase();
@@ -110,10 +111,11 @@ function drawFooter(doc, pageNum, total, genTime) {
   const barY  = PH - barH;
   const textY = PH - 5;
 
+  // #14532D deep forest green footer bar
   setFill(doc, G_DARK);
   doc.rect(0, barY, PW, barH, "F");
 
-  // Top accent stripe
+  // #166534 accent stripe at top of footer
   setFill(doc, G_ACCENT);
   doc.rect(0, barY, PW, 1.5, "F");
 
@@ -132,6 +134,7 @@ function drawFooter(doc, pageNum, total, genTime) {
 
 // ── Section label ─────────────────────────────────────────────────────────────
 function sectionLabel(doc, y, num, title) {
+  // #166534 left accent bar
   setFill(doc, G_ACCENT);
   doc.rect(ML, y, 2.5, 5.5, "F");
 
@@ -151,7 +154,7 @@ function kvLine(doc, y, label, value) {
   setTxt(doc, INK);
   const lines = doc.splitTextToSize(String(value), CW - 60);
   doc.text(lines, ML + 58, y);
-  return y + lines.length * 5 + 1;
+  return y + lines.length * 5.5 + 1;
 }
 
 // ── Page break (no header on new pages) ──────────────────────────────────────
@@ -175,7 +178,7 @@ export function generateIncidentPDF(formData) {
   doc.setLineWidth(0.3);
   doc.roundedRect(ML, y, CW, 14, 1.5, 1.5, "FD");
 
-  // Left accent stripe
+  // #166534 left accent stripe on banner
   setFill(doc, G_ACCENT);
   doc.rect(ML, y, 3, 14, "F");
 
@@ -205,50 +208,56 @@ export function generateIncidentPDF(formData) {
   y += 4; rule(doc, y); y += 5;
 
   // ── Section 2 ─────────────────────────────────────────────────────────────
-  y = checkPage(doc, y, 16 + sites.length * 5);
+  y = checkPage(doc, y, 16 + sites.length * 6);
   y = sectionLabel(doc, y, 2, "Physical Location of Affected Computer");
   sites.forEach((s) => {
-    y = checkPage(doc, y, 6);
-    setFont(doc, "normal", 9.5); setTxt(doc, INK);
+    y = checkPage(doc, y, 7);
+    setFont(doc, "normal", 9.5);
+    setTxt(doc, INK);
+    // #166534 bullet dot
     setFill(doc, G_ACCENT);
     doc.circle(ML + 4, y - 0.8, 0.9, "F");
     doc.text(s.site, ML + 8, y);
-    y += 5;
+    y += 6;
   });
   y += 3; rule(doc, y); y += 5;
 
   // ── Section 3 — date boxes ────────────────────────────────────────────────
-  y = checkPage(doc, y, 30);
+  y = checkPage(doc, y, 32);
   y = sectionLabel(doc, y, 3, "Date and Time Incident Occurred");
 
   const half = (CW - 6) / 2;
   const drawDateBox = (xOff, lbl, val) => {
+    // #F0FDF4 background
     setFill(doc, G_BG);
     setDraw(doc, BORDER);
     doc.setLineWidth(0.3);
-    doc.roundedRect(xOff, y, half, 15, 1.2, 1.2, "FD");
+    doc.roundedRect(xOff, y, half, 16, 1.2, 1.2, "FD");
 
-    // Top accent line
+    // #166534 top accent stripe
     setFill(doc, G_ACCENT);
     doc.roundedRect(xOff, y, half, 2.5, 1.2, 1.2, "F");
 
-    setFont(doc, "bold", 8.5); setTxt(doc, G_ACCENT);
-    doc.text(lbl, xOff + 4, y + 6.5);
-    setFont(doc, "bold", 11); setTxt(doc, INK);
-    doc.text(val, xOff + 4, y + 13);
+    setFont(doc, "bold", 8.5);
+    setTxt(doc, G_ACCENT);
+    doc.text(lbl, xOff + 4, y + 7);
+
+    setFont(doc, "bold", 11);
+    setTxt(doc, INK);
+    doc.text(val, xOff + 4, y + 14);
   };
   drawDateBox(ML,            "START DATE & TIME", fmtDT(startDateTime));
   drawDateBox(ML + half + 6, "END DATE & TIME",   fmtDT(endDateTime));
-  y += 20; rule(doc, y); y += 5;
+  y += 21; rule(doc, y); y += 5;
 
   // ── Section 4 ─────────────────────────────────────────────────────────────
-  y = checkPage(doc, y, 18);
+  y = checkPage(doc, y, 20);
   y = sectionLabel(doc, y, 4, "Is the affected system/network critical to the organization's mission?");
   y = kvLine(doc, y, "Critical", "Yes");
   y += 4; rule(doc, y); y += 5;
 
   // ── Section 5 — system table ──────────────────────────────────────────────
-  y = checkPage(doc, y, 28);
+  y = checkPage(doc, y, 30);
   y = sectionLabel(doc, y, 5, "Information of Affected System");
 
   const sysRows = sites
@@ -266,7 +275,11 @@ export function generateIncidentPDF(formData) {
       cellPadding: { top: 4, bottom: 4, left: 4, right: 4 },
       textColor: INK, lineColor: BORDER, lineWidth: 0.25,
     },
-    headStyles: { fillColor: G_DARK, textColor: WHITE, fontStyle: "bold", fontSize: 9 },
+    headStyles: {
+      fillColor: G_DARK,        // #14532D deep forest green
+      textColor: WHITE,
+      fontStyle: "bold", fontSize: 9,
+    },
     alternateRowStyles: { fillColor: ROW_ALT },
     columnStyles: {
       0: { cellWidth: 30 }, 1: { cellWidth: 46 },
@@ -277,13 +290,13 @@ export function generateIncidentPDF(formData) {
   y = doc.lastAutoTable.finalY + 5; rule(doc, y); y += 5;
 
   // ── Section 6 ─────────────────────────────────────────────────────────────
-  y = checkPage(doc, y, 18);
+  y = checkPage(doc, y, 20);
   y = sectionLabel(doc, y, 6, "Type of Incident");
   y = kvLine(doc, y, "Classification", "Technical Vulnerability");
   y += 4; rule(doc, y); y += 5;
 
   // ── Section 7 — alert table ───────────────────────────────────────────────
-  y = checkPage(doc, y, 28);
+  y = checkPage(doc, y, 30);
   y = sectionLabel(doc, y, 7, "Description of Incident");
 
   const alertRows = [];
@@ -303,7 +316,11 @@ export function generateIncidentPDF(formData) {
       cellPadding: { top: 4, bottom: 4, left: 4, right: 4 },
       textColor: INK, lineColor: BORDER, lineWidth: 0.25, overflow: "linebreak",
     },
-    headStyles: { fillColor: G_DARK, textColor: WHITE, fontStyle: "bold", fontSize: 9 },
+    headStyles: {
+      fillColor: G_DARK,        // #14532D deep forest green
+      textColor: WHITE,
+      fontStyle: "bold", fontSize: 9,
+    },
     alternateRowStyles: { fillColor: ROW_ALT },
     columnStyles: {
       0: { cellWidth: 50, fontStyle: "bold" }, 1: { cellWidth: 38 },
@@ -313,19 +330,19 @@ export function generateIncidentPDF(formData) {
   y = doc.lastAutoTable.finalY + 5; rule(doc, y); y += 5;
 
   // ── Section 8 ─────────────────────────────────────────────────────────────
-  y = checkPage(doc, y, 18);
+  y = checkPage(doc, y, 20);
   y = sectionLabel(doc, y, 8, "Unusual Behaviour / Symptoms");
   y = kvLine(doc, y, "Symptom", "A system alarm or similar indication from an intrusion detection tool.");
   y += 4; rule(doc, y); y += 5;
 
   // ── Section 9 ─────────────────────────────────────────────────────────────
-  y = checkPage(doc, y, 18);
+  y = checkPage(doc, y, 20);
   y = sectionLabel(doc, y, 9, "When and How was the Incident Detected");
   y = kvLine(doc, y, "Detection Method", "Through Forti Analyzer");
   y += 4; rule(doc, y); y += 5;
 
   // ── Section 10 ────────────────────────────────────────────────────────────
-  y = checkPage(doc, y, 24);
+  y = checkPage(doc, y, 26);
   y = sectionLabel(doc, y, 10, "Additional Information");
   y = kvLine(doc, y, "Log being submitted", "Yes");
   y = kvLine(doc, y, "Mode of submission",  "Outlook");
