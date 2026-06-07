@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { ChevronDown, FileDown, RotateCcw, Loader2, Sun, Moon } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { ChevronDown, ChevronUp, FileDown, RotateCcw, Loader2, Sun, Moon } from "lucide-react";
 import { CATEGORIES, CATEGORY_LOCATIONS, createAlertEntry } from "./data/constants";
 import LocationSelector  from "./components/LocationSelector";
 import SiteAlertSection  from "./components/SiteAlertSection";
@@ -23,12 +23,28 @@ export default function App() {
   const [siteAlerts, setSiteAlerts]   = useState({});
   const [errors, setErrors]           = useState({});
   const [generating, setGenerating]   = useState(false);
-  const [dark, setDark]               = useState(true);
+  const [dark, setDark]               = useState(false);
+  const [scrollY, setScrollY]         = useState(0);
+  const alertsRef                     = useRef(null);
 
   // Apply theme
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
   }, [dark]);
+
+  // Track scroll position for navigation buttons
+  useEffect(() => {
+    const update = () => setScrollY(window.scrollY);
+    window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
+  }, []);
+
+  const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+  const showScrollUp   = scrollY > 200;
+  const showScrollDown = selectedSites.length > 0 && maxScroll > 100 && scrollY < maxScroll - 100;
+
+  const scrollToTop    = () => window.scrollTo({ top: 0, behavior: "smooth" });
+  const scrollToAlerts = () => alertsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   // Re-check access every minute (in case time window closes while open)
   useEffect(() => {
@@ -218,6 +234,7 @@ export default function App() {
                   label="Start Date and Time" value={form.startDateTime}
                   onChange={(v) => handleFormChange("startDateTime", v)}
                   required placeholder="Pick start date & time"
+                  defaultHour="04" defaultMinute="00" defaultPeriod="PM"
                 />
                 {errors.startDateTime && <p className="error-msg">{errors.startDateTime}</p>}
               </div>
@@ -226,6 +243,7 @@ export default function App() {
                   label="End Date and Time" value={form.endDateTime}
                   onChange={(v) => handleFormChange("endDateTime", v)}
                   required placeholder="Pick end date & time"
+                  defaultHour="04" defaultMinute="00" defaultPeriod="PM"
                 />
                 {errors.endDateTime && <p className="error-msg">{errors.endDateTime}</p>}
               </div>
@@ -246,7 +264,7 @@ export default function App() {
 
           {/* Card 3 */}
           {selectedSites.length > 0 && (
-            <div className="form-card animate-fade-in">
+            <div className="form-card animate-fade-in" ref={alertsRef}>
               <div className="card-section-label">
                 <span className="section-number">03</span>
                 Alert Entries
@@ -278,6 +296,22 @@ export default function App() {
           </div>
         </form>
       </div>
+
+      {/* Floating scroll navigation */}
+      {(showScrollUp || showScrollDown) && (
+        <div className="scroll-nav">
+          {showScrollDown && (
+            <button className="scroll-nav-btn" onClick={scrollToAlerts} title="Go to alerts section">
+              <ChevronDown size={20} />
+            </button>
+          )}
+          {showScrollUp && (
+            <button className="scroll-nav-btn" onClick={scrollToTop} title="Back to top">
+              <ChevronUp size={20} />
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

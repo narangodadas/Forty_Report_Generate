@@ -88,6 +88,8 @@ export const ALERT_TYPES = [
   "Anydesk",
   "TeamViewer",
   "Experienced an Unexpected Power Off",
+  "tunnel.googlezip.net",
+  "Remote.Access",
   "Other",
 ];
 

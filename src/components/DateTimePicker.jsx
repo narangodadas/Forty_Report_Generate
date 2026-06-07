@@ -1,10 +1,10 @@
 import { useRef, useEffect, useState } from "react";
 import { Calendar, X } from "lucide-react";
 
-export default function DateTimePicker({ label, value, onChange, required, placeholder }) {
+export default function DateTimePicker({ label, value, onChange, required, placeholder, defaultHour, defaultMinute, defaultPeriod }) {
   const [isOpen, setIsOpen] = useState(false);
   const [inputVal, setInputVal] = useState(value || "");
-  const [tempDate, setTempDate] = useState({ date: "", hour: "12", minute: "00", period: "AM" });
+  const [tempDate, setTempDate] = useState({ date: "", hour: defaultHour || "12", minute: defaultMinute || "00", period: defaultPeriod || "AM" });
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -64,7 +64,7 @@ export default function DateTimePicker({ label, value, onChange, required, place
   };
 
   return (
-    <div className="field-group" ref={containerRef}>
+    <div className="field-group" ref={containerRef} style={{ position: "relative" }}>
       <label className="field-label">
         {label} {required && <span className="required">*</span>}
       </label>
