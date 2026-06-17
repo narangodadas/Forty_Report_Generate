@@ -78,24 +78,35 @@ export default function PasswordGate({ onUnlock }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     const { allowed: nowAllowed } = getAccessState();
-    if (!nowAllowed) {
+
+    // If the user entered the correct password, allow access anytime.
+    if (password === CORRECT_PASSWORD) {
+      setError("");
+      setSuccess(true);
+      setTimeout(() => onUnlock(), 900);
+      return;
+    }
+
+    // If no password provided, only allow access during the open window.
+    if (!password) {
+      if (nowAllowed) {
+        setError("");
+        setSuccess(true);
+        setTimeout(() => onUnlock(), 900);
+        return;
+      }
       setError("System unavailable outside 4:00 PM–8:00 PM.");
       setShaking(true);
       setTimeout(() => setShaking(false), 500);
       return;
     }
 
-    if (password === CORRECT_PASSWORD) {
-      setError("");
-      setSuccess(true);
-      setTimeout(() => onUnlock(), 900);
-    } else {
-      setError("Incorrect password. Please try again.");
-      setShaking(true);
-      setPassword("");
-      setTimeout(() => setShaking(false), 500);
-      inputRef.current?.focus();
-    }
+    // Password provided but incorrect
+    setError("Incorrect password. Please try again.");
+    setShaking(true);
+    setPassword("");
+    setTimeout(() => setShaking(false), 500);
+    inputRef.current?.focus();
   };
 
   return (
@@ -123,7 +134,7 @@ export default function PasswordGate({ onUnlock }) {
           <p className="gate-subtitle">
             {success
               ? "Redirecting to dashboard…"
-              : "This system is available between 4:00 PM – 8:00 PM. Enter the NOC password to continue."
+              : "Enter the NOC password to continue, or access without a password between 4:00 PM – 8:00 PM."
             }
           </p>
 
@@ -138,7 +149,7 @@ export default function PasswordGate({ onUnlock }) {
                 {formatCountdown(countdown)}
               </div>
               <div className="gate-countdown-sub">
-                Free access resumes at <strong>4:00 PM</strong> today
+                {allowed ? "Free access is available now" : <>Free access resumes at <strong>4:00 PM</strong> today</>}
               </div>
             </div>
           )}
@@ -179,7 +190,7 @@ export default function PasswordGate({ onUnlock }) {
                 )}
               </div>
 
-              <button type="submit" className="gate-submit-btn" disabled={!password}>
+              <button type="submit" className="gate-submit-btn" disabled={!password && !allowed}>
                 <ShieldCheck size={15} />
                 Unlock Dashboard
               </button>
