@@ -8,7 +8,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Lock, Eye, EyeOff, ShieldCheck, Clock, AlertTriangle } from "lucide-react";
 
-const CORRECT_PASSWORD = "FIT_NOC";
+const CORRECT_PASSWORD = "TIF-CON";
 
 /** Returns { allowed, nextOpenMs }
  *  allowed    — true if 16:00 ≤ now < 20:00
