@@ -7,6 +7,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Lock, Eye, EyeOff, ShieldCheck, Clock, AlertTriangle } from "lucide-react";
+import monkeyImg from "../assets/monkey.jpg";
 
 const CORRECT_PASSWORD = "TIF-CON";
 
@@ -56,6 +57,7 @@ export default function PasswordGate({ onUnlock }) {
   const [success, setSuccess]     = useState(false);
   const [countdown, setCountdown] = useState(0);
   const [allowed, setAllowed]       = useState(() => getAccessState().allowed);
+  const [showMonkey, setShowMonkey] = useState(false);
   const inputRef = useRef(null);
 
   // Live countdown tick
@@ -104,8 +106,11 @@ export default function PasswordGate({ onUnlock }) {
     // Password provided but incorrect
     setError("Incorrect password. Please try again.");
     setShaking(true);
+    setShowMonkey(true);
     setPassword("");
     setTimeout(() => setShaking(false), 500);
+    // Hide monkey image after 3 seconds
+    setTimeout(() => setShowMonkey(false), 3000);
     inputRef.current?.focus();
   };
 
@@ -187,6 +192,11 @@ export default function PasswordGate({ onUnlock }) {
                     <AlertTriangle size={12} />
                     {error}
                   </p>
+                )}
+                {showMonkey && (
+                  <div className="gate-monkey-wrap">
+                    <img src={monkeyImg} alt="funny monkey" className="gate-monkey-img" />
+                  </div>
                 )}
               </div>
 
