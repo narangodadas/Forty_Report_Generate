@@ -49,8 +49,10 @@ export default function App() {
   // Re-check access every minute (in case time window closes while open)
   useEffect(() => {
     const id = setInterval(() => {
-      if (!isOpenHour() && unlocked && !sessionStorage.getItem("fit_noc_unlocked")) {
+      // If the time window has closed, force lock the UI and clear any stored unlock flag.
+      if (!isOpenHour() && unlocked) {
         setUnlocked(false);
+        try { sessionStorage.removeItem("fit_noc_unlocked"); } catch (e) { /* ignore */ }
       }
     }, 30000);
     return () => clearInterval(id);

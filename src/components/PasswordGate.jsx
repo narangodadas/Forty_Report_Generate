@@ -55,13 +55,15 @@ export default function PasswordGate({ onUnlock }) {
   const [shaking, setShaking]     = useState(false);
   const [success, setSuccess]     = useState(false);
   const [countdown, setCountdown] = useState(0);
+  const [allowed, setAllowed]       = useState(() => getAccessState().allowed);
   const inputRef = useRef(null);
 
   // Live countdown tick
   useEffect(() => {
     const tick = () => {
-      const { nextOpenMs } = getAccessState();
+      const { nextOpenMs, allowed: a } = getAccessState();
       setCountdown(nextOpenMs);
+      setAllowed(a);
     };
     tick();
     const id = setInterval(tick, 1000);
@@ -75,6 +77,14 @@ export default function PasswordGate({ onUnlock }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const { allowed: nowAllowed } = getAccessState();
+    if (!nowAllowed) {
+      setError("System unavailable outside 4:00 PM–8:00 PM.");
+      setShaking(true);
+      setTimeout(() => setShaking(false), 500);
+      return;
+    }
+
     if (password === CORRECT_PASSWORD) {
       setError("");
       setSuccess(true);
