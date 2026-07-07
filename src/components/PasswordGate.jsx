@@ -9,7 +9,7 @@ import { useState, useEffect, useRef } from "react";
 import { Lock, Eye, EyeOff, ShieldCheck, Clock, AlertTriangle } from "lucide-react";
 import monkeyImg from "../assets/monkey.jpg";
 
-const CORRECT_PASSWORD = "TIF-CON";
+const CORRECT_PASSWORD = "Kiyanne_Naa";
 
 /** Returns { allowed, nextOpenMs }
  *  allowed    — true if 16:00 ≤ now < 20:00
