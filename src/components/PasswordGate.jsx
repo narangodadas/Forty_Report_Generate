@@ -34,9 +34,10 @@ function getAccessState() {
   const totalMinutes = h * 60 + m;
 
   const allowed =
-    totalMinutes >= 16 * 60 && totalMinutes < 20 * 60;
+    totalMinutes >= 16 * 60 &&
+    totalMinutes < 20 * 60;
 
-  // Calculate ms until next 16:00
+  // Calculate milliseconds until next 16:00
   let nextOpen;
 
   if (totalMinutes < 16 * 60) {
@@ -50,7 +51,8 @@ function getAccessState() {
     const secsTillMidnight =
       (24 * 60 - totalMinutes) * 60 - s;
 
-    const secsTill4pm = 16 * 60 * 60;
+    const secsTill4pm =
+      16 * 60 * 60;
 
     nextOpen =
       (secsTillMidnight + secsTill4pm) * 1000;
@@ -62,13 +64,20 @@ function getAccessState() {
   };
 }
 
+/**
+ * Format milliseconds as HH:MM:SS
+ */
 function formatCountdown(ms) {
-  if (ms <= 0) return "00:00:00";
+  if (ms <= 0) {
+    return "00:00:00";
+  }
 
   const totalSec = Math.floor(ms / 1000);
 
   const hh = Math.floor(totalSec / 3600);
-  const mm = Math.floor((totalSec % 3600) / 60);
+  const mm = Math.floor(
+    (totalSec % 3600) / 60
+  );
   const ss = totalSec % 60;
 
   return [hh, mm, ss]
@@ -83,58 +92,81 @@ export default function PasswordGate({ onUnlock }) {
   const [shaking, setShaking] = useState(false);
   const [success, setSuccess] = useState(false);
   const [countdown, setCountdown] = useState(0);
+
   const [allowed, setAllowed] = useState(
     () => getAccessState().allowed
   );
 
   const inputRef = useRef(null);
 
-  // Live countdown tick
+  /**
+   * Live countdown
+   */
   useEffect(() => {
     const tick = () => {
-      const { nextOpenMs, allowed: a } =
-        getAccessState();
+      const {
+        nextOpenMs,
+        allowed: currentAllowed,
+      } = getAccessState();
 
       setCountdown(nextOpenMs);
-      setAllowed(a);
+      setAllowed(currentAllowed);
     };
 
+    // Run immediately
     tick();
 
+    // Update every second
     const id = setInterval(tick, 1000);
 
     return () => clearInterval(id);
   }, []);
 
-  // Focus input on mount
+  /**
+   * Focus password input on mount
+   */
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
+  /**
+   * Handle password submission
+   */
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const { allowed: nowAllowed } = getAccessState();
+    const {
+      allowed: nowAllowed,
+    } = getAccessState();
 
-    // If the user entered the correct password,
-    // allow access anytime.
+    /**
+     * Correct password:
+     * Allow access at any time.
+     */
     if (password === CORRECT_PASSWORD) {
       setError("");
       setSuccess(true);
 
-      setTimeout(() => onUnlock(), 900);
+      setTimeout(() => {
+        onUnlock();
+      }, 900);
 
       return;
     }
 
-    // If no password provided, only allow access
-    // during the open window.
+    /**
+     * No password:
+     * Allow access only between
+     * 4:00 PM and 8:00 PM.
+     */
     if (!password) {
       if (nowAllowed) {
         setError("");
         setSuccess(true);
 
-        setTimeout(() => onUnlock(), 900);
+        setTimeout(() => {
+          onUnlock();
+        }, 900);
 
         return;
       }
@@ -145,41 +177,101 @@ export default function PasswordGate({ onUnlock }) {
 
       setShaking(true);
 
-      setTimeout(() => setShaking(false), 500);
+      setTimeout(() => {
+        setShaking(false);
+      }, 500);
 
       return;
     }
 
-    // Password provided but incorrect
-    setError("Incorrect password. Please try again.");
+    /**
+     * Incorrect password
+     */
+    setError(
+      "Incorrect password. Please try again."
+    );
 
     setShaking(true);
-
     setPassword("");
 
-    setTimeout(() => setShaking(false), 500);
+    setTimeout(() => {
+      setShaking(false);
+    }, 500);
 
     inputRef.current?.focus();
   };
 
   return (
-    <div className="gate-page">
-      {/* Animated background */}
+    <div
+      className="gate-page"
+      style={{
+        position: "fixed",
+        inset: 0,
+        width: "100vw",
+        height: "100vh",
+
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+
+        overflow: "auto",
+
+        boxSizing: "border-box",
+
+        zIndex: 9999,
+      }}
+    >
+      {/* =========================================
+          Animated Background
+          ========================================= */}
       <div className="gate-background">
         <div className="gate-bg-circle gate-bg-circle-1" />
         <div className="gate-bg-circle gate-bg-circle-2" />
         <div className="gate-bg-grid" />
       </div>
 
-      <div className="gate-card-wrap">
+      {/* =========================================
+          Centered Card Wrapper
+          ========================================= */}
+      <div
+        className="gate-card-wrap"
+        style={{
+          width: "100%",
+
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+
+          boxSizing: "border-box",
+
+          padding: "20px",
+
+          position: "relative",
+
+          zIndex: 10,
+        }}
+      >
+        {/* =========================================
+            Password Card
+            ========================================= */}
         <div
-          className={`gate-card ${
-            shaking ? "gate-shake" : ""
-          } ${
-            success ? "gate-success-anim" : ""
-          }`}
+          className={`
+            gate-card
+            ${shaking ? "gate-shake" : ""}
+            ${success ? "gate-success-anim" : ""}
+          `}
+          style={{
+            width: "100%",
+            maxWidth: "440px",
+
+            margin: "0 auto",
+
+            boxSizing: "border-box",
+          }}
         >
-          {/* Top icon */}
+          {/* =========================================
+              Top Icon
+              ========================================= */}
           <div className="gate-icon-ring">
             {success ? (
               <ShieldCheck
@@ -194,25 +286,35 @@ export default function PasswordGate({ onUnlock }) {
             )}
           </div>
 
-          {/* Heading */}
+          {/* =========================================
+              Heading
+              ========================================= */}
           <h1 className="gate-title">
             {success
               ? "Access Granted"
               : "Restricted Access"}
           </h1>
 
+          {/* =========================================
+              Subtitle
+              ========================================= */}
           <p className="gate-subtitle">
             {success
               ? "Redirecting to dashboard…"
               : "Enter the NOC password to continue, or access without a password between 4:00 PM – 8:00 PM."}
           </p>
 
-          {/* Countdown card */}
+          {/* =========================================
+              Countdown Card
+              ========================================= */}
           {!success && (
             <div className="gate-countdown-card">
               <div className="gate-countdown-header">
                 <Clock size={13} />
-                <span>Next open window in</span>
+
+                <span>
+                  Next open window in
+                </span>
               </div>
 
               <div className="gate-countdown-time">
@@ -232,7 +334,9 @@ export default function PasswordGate({ onUnlock }) {
             </div>
           )}
 
-          {/* Form */}
+          {/* =========================================
+              Password Form
+              ========================================= */}
           {!success && (
             <form
               onSubmit={handleSubmit}
@@ -240,34 +344,51 @@ export default function PasswordGate({ onUnlock }) {
               noValidate
             >
               <div className="gate-field">
+                {/* Password Label */}
                 <label className="gate-label">
                   <Lock size={12} />
+
                   NOC Password
                 </label>
 
+                {/* Password Input */}
                 <div className="gate-input-wrap">
                   <input
                     ref={inputRef}
-                    type={show ? "text" : "password"}
+                    type={
+                      show
+                        ? "text"
+                        : "password"
+                    }
                     value={password}
                     onChange={(e) => {
-                      setPassword(e.target.value);
+                      setPassword(
+                        e.target.value
+                      );
+
                       setError("");
                     }}
                     placeholder="Enter password"
-                    className={`gate-input ${
-                      error
-                        ? "gate-input-error"
-                        : ""
-                    }`}
+                    className={`
+                      gate-input
+                      ${
+                        error
+                          ? "gate-input-error"
+                          : ""
+                      }
+                    `}
                     autoComplete="off"
                     spellCheck={false}
                   />
 
+                  {/* Show / Hide Password */}
                   <button
                     type="button"
                     onClick={() =>
-                      setShow((s) => !s)
+                      setShow(
+                        (current) =>
+                          !current
+                      )
                     }
                     className="gate-eye-btn"
                     tabIndex={-1}
@@ -280,28 +401,37 @@ export default function PasswordGate({ onUnlock }) {
                   </button>
                 </div>
 
+                {/* Error Message */}
                 {error && (
                   <p className="gate-error">
                     <AlertTriangle size={12} />
+
                     {error}
                   </p>
                 )}
               </div>
 
+              {/* Submit Button */}
               <button
                 type="submit"
                 className="gate-submit-btn"
-                disabled={!password && !allowed}
+                disabled={
+                  !password && !allowed
+                }
               >
                 <ShieldCheck size={15} />
+
                 Unlock Dashboard
               </button>
             </form>
           )}
 
-          {/* Footer */}
+          {/* =========================================
+              Footer
+              ========================================= */}
           <div className="gate-footer-note">
             <span className="gate-dot" />
+
             Fentons IT — NOC Security Portal
           </div>
         </div>
